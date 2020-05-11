@@ -15,6 +15,25 @@ function love.load()
 		vsync = true
 	})
 	
+	sounds = {
+		['pHit1'] = love.audio.newSource('sfx/pdlhit1.wav', 'static'),
+		['pHit2'] = love.audio.newSource('sfx/pdlhit2.wav', 'static'),
+		['pHit3'] = love.audio.newSource('sfx/pdlhit3.wav', 'static'),
+		['wHit1'] = love.audio.newSource('sfx/wallhit1.wav', 'static'),
+		['wHit2'] = love.audio.newSource('sfx/wallhit2.wav', 'static'),
+		['wHit3'] = love.audio.newSource('sfx/wallhit3.wav', 'static'),
+		['score'] = love.audio.newSource('sfx/score.wav', 'static'),
+		['win'] = love.audio.newSource('sfx/win.wav', 'static')
+	}
+	
+	sounds['wHit1']:setVolume(0.3)
+	sounds['wHit2']:setVolume(0.3)
+	sounds['wHit3']:setVolume(0.3)
+	sounds['score']:setVolume(0.3)
+	sounds['win']:setVolume(0.3)
+	
+	soundLoader = 0;
+	
 	love.window.setTitle('Pong to Death')
 	
 	math.randomseed(os.time())
@@ -95,7 +114,16 @@ function bColl(pY)
 
 	if ballY >= pY and ballY <= pY + P_HGT
 	or ballY + B_WDH_HGT >= pY and ballY + B_WDH_HGT <= pY + P_HGT
-	then ballDX = -ballDX * 1.05
+	then 
+		ballDX = -ballDX * 1.05
+		soundLoader = math.random(1, 3)
+		if soundLoader == 1
+		then sounds['pHit1']:play()
+		elseif soundLoader == 2
+		then sounds['pHit2']:play()
+		elseif soundLoader == 3
+		then sounds['pHit3']:play()
+		end
 	end
 end
 
@@ -135,7 +163,16 @@ function play(dt)
 	ballY = ballY + ballDY * dt
 	
 	if ballY <= 0 or ballY +13 >= W_HGT
-	then ballDY = -ballDY * 1.05
+	then 
+		ballDY = -ballDY * 1.05
+		soundLoader = math.random(1, 3)
+		if soundLoader == 1
+		then sounds['wHit1']:play()
+		elseif soundLoader == 2
+		then sounds['wHit2']:play()
+		elseif soundLoader == 3
+		then sounds['wHit3']:play()
+		end
 	end
 	
 	--paddle collision & score check
@@ -150,12 +187,14 @@ function play(dt)
 	elseif ballX <= 0
 	then 
 		p1Lives = p1Lives - 1
+		sounds['score']:play()
 		ballreset()
 		sysPause = true
 	
 	elseif ballX >= W_WDH
 	then 
 		p2Lives = p2Lives - 1
+		sounds['score']:play()
 		ballreset()
 		sysPause = true
 	end
@@ -164,10 +203,12 @@ function play(dt)
 	if p1Lives == 0
 	then 
 		p2WinCount = p2WinCount + 1
+		sounds['win']:play()
 		gamereset()
 	elseif p2Lives == 0
 	then
 		p1WinCount = p1WinCount + 1
+		sounds['win']:play()
 		gamereset()
 	end
 
